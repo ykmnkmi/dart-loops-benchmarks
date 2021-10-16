@@ -1,16 +1,21 @@
-import 'dart:math' show pow;
+import 'dart:math' show Random, pow;
 
 import 'package:benchmark_harness/benchmark_harness.dart';
 
-@pragma('dart2js:noInline')
-@pragma('vm:never-inline')
-void work(int value) {
-  pow(value, 3);
+T unsafeCast<T>(dynamic value) {
+  return value;
 }
 
-void main(List<String> arguments) {
-  var n = arguments.isEmpty ? 3000000 : int.parse(arguments.first);
-  var list = List<int>.generate(n, (i) => i);
+@pragma('dart2js:noInline')
+@pragma('vm:no-inline')
+int work(int value) {
+  return unsafeCast<int>(pow(value, 3));
+}
+
+void main() {
+  var random = Random();
+  var n = 3 + random.nextInt(1);
+  var list = List<int>.generate(1000000 * n, (i) => i);
 
   WhileUncached(list).report();
   WhileCached(list).report();
@@ -44,9 +49,10 @@ class WhileUncached extends Benchmark {
   @override
   void run() {
     var count = 0;
+    var eachElement = 0;
 
     while (count < list.length) {
-      work(list[count]);
+      eachElement = work(list[count]);
       count++;
     }
   }
@@ -61,9 +67,10 @@ class WhileCached extends Benchmark {
   void run() {
     var count = 0;
     var length = list.length;
+    var eachElement = 0;
 
     while (count < length) {
-      work(list[count]);
+      eachElement = work(list[count]);
       count++;
     }
   }
@@ -77,9 +84,10 @@ class WhileReversed extends Benchmark {
   @override
   void run() {
     var count = list.length - 1;
+    var eachElement = 0;
 
     while (count >= 0) {
-      work(list[count]);
+      eachElement = work(list[count]);
       count--;
     }
   }
@@ -92,8 +100,10 @@ class ForUncached extends Benchmark {
 
   @override
   void run() {
+    var eachElement = 0;
+
     for (var i = 0; i < list.length; i++) {
-      work(list[i]);
+      eachElement = work(list[i]);
     }
   }
 }
@@ -106,9 +116,10 @@ class ForCached extends Benchmark {
   @override
   void run() {
     var length = list.length;
+    var eachElement = 0;
 
     for (var i = 0; i < length; i++) {
-      work(list[i]);
+      eachElement = work(list[i]);
     }
   }
 }
@@ -120,8 +131,10 @@ class ForReversed extends Benchmark {
 
   @override
   void run() {
+    var eachElement = 0;
+
     for (var i = list.length - 1; i >= 0; i--) {
-      work(list[i]);
+      eachElement = work(list[i]);
     }
   }
 }
@@ -133,8 +146,10 @@ class ForIn extends Benchmark {
 
   @override
   void run() {
+    var eachElement = 0;
+
     for (var element in list) {
-      work(element);
+      eachElement = work(element);
     }
   }
 }
@@ -146,8 +161,10 @@ class ForEach extends Benchmark {
 
   @override
   void run() {
+    var eachElement = 0;
+
     list.forEach((element) {
-      work(element);
+      eachElement = work(element);
     });
   }
 }
