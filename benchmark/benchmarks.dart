@@ -9,7 +9,7 @@ void work(int value) {
 }
 
 void main(List<String> arguments) {
-  var n = arguments.isEmpty ? 3000000 : int.parse(arguments.first);
+  var n = arguments.isEmpty ? 3000 : int.parse(arguments.first);
   var list = List<int>.generate(n, (i) => i);
 
   WhileUncached(list).report();
@@ -34,6 +34,13 @@ class Emitter implements ScoreEmitter {
 
 class Benchmark extends BenchmarkBase {
   const Benchmark(String name) : super(name, emitter: const Emitter());
+
+  @override
+  void exercise() {
+    for (var i = 0; i < 10; i++) {
+      run();
+    }
+  }
 }
 
 class WhileUncached extends Benchmark {
