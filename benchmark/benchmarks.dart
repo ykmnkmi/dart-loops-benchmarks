@@ -4,8 +4,8 @@ import 'package:benchmark_harness/benchmark_harness.dart';
 
 @pragma('dart2js:noInline')
 @pragma('vm:never-inline')
-void work(int value) {
-  pow(value, 3);
+num work(int value) {
+  return pow(value, 3);
 }
 
 void main(List<String> arguments) {
@@ -21,6 +21,7 @@ void main(List<String> arguments) {
   ForIn(list).report();
   ForEach(list).report();
   MapList(list).report();
+  ListGenerate(list).report();
 }
 
 class Emitter implements ScoreEmitter {
@@ -167,5 +168,16 @@ class MapList extends Benchmark {
   @override
   void run() {
     list.map((element) => work(element)).toList();
+  }
+}
+
+class ListGenerate extends Benchmark {
+  const ListGenerate(this.list) : super('list generate');
+
+  final List<int> list;
+
+  @override
+  void run() {
+    List<num>.generate(list.length, (index) => work(list[index]));
   }
 }
